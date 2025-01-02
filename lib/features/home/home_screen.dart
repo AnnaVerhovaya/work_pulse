@@ -11,8 +11,8 @@ class HomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
     return AutoTabsRouter(
       routes: const [
-        DayRoute(),
         CalendarRoute(),
+        DayRoute(),
         SettingsRoute(),
       ],
       builder: (context, child) {
@@ -26,12 +26,12 @@ class HomeScreen extends StatelessWidget {
             onTap: (index) => _openPage(index, tabsRouter),
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.view_day_outlined),
-                label: 'День',
-              ),
-              BottomNavigationBarItem(
                 icon: Icon(Icons.calendar_month),
                 label: 'Календарь',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.view_day_outlined),
+                label: 'День',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),

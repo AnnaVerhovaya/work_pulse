@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_workpulse/features/day/widgets/data_calculation.dart';
 import 'package:intl/intl.dart';
 
-
-
 @RoutePage()
 class DayScreen extends StatelessWidget {
   const DayScreen({super.key});
@@ -12,15 +10,13 @@ class DayScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: Column(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.95,
-            decoration:
-                BoxDecoration(color: const Color(0xFF958DA5).withOpacity(0.5)),
-          ),
-          const DataCalculationWidget(),
           const TopScreenWidget(),
+          SizedBox(height: 80
+          ,),
+        
+          const DataCalculationWidget(),
         ],
       ),
     );
@@ -104,7 +100,7 @@ class ResultMonthWidget extends StatelessWidget {
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.05,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFFFEFD6),
+                    color: Colors.white,
                     borderRadius: BorderRadius.all(
                       Radius.circular(10),
                     ),
