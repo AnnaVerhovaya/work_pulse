@@ -7,10 +7,10 @@ class DataCalculationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFB58392).withOpacity(0.3),
+        color:  Colors.white,
         borderRadius: BorderRadius.circular(20),
       ),
-      height: MediaQuery.of(context).size.height * 0.65,
+      height: MediaQuery.of(context).size.height * 0.35,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
