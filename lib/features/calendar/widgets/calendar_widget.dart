@@ -45,80 +45,110 @@ class _CustomCalendarState extends State<CustomCalendar> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(15),
-            bottomRight: Radius.circular(15),
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(15),
+          bottomRight: Radius.circular(15),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
-          border: Border.all(
-            color: Colors.white10,
-            width: 1.5,
-          )),
+        ],
+      ),
       child: Center(
         child: MasonryGridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: widget.calendarDates.length,
-            gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7),
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-                child: GestureDetector(
-                  onTap: () {
-                    addDataWidget(context, index, _isSwitched);
-                  },
-                  child: Column(
-                    children: [
-                      if (index < 7) Text(AppConstants().week[index]),
-                      Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white),
-                        child: Column(
-                          children: [
-                            Text(
-                              DateFormat('d').format(
-                                widget.calendarDates[index],
-                              ),
-                            ),
-                            BlocBuilder<CalendarBloc, CalendarState>(
-                              bloc: calendarBloc,
-                              builder: (context, state) {
-                                return state.when(
-                                  initial: () => const Center(
-                                      child: CircularProgressIndicator()),
-                                  loading: () => const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                  error: (message) => Center(
-                                    child: Text(message),
-                                  ),
-                                  loaded: (workEntries) {
-                                    final workEntry = workEntries[
-                                        widget.calendarDates[index]] ?? null;
-
-                                    return Center(
-                                      child: Text(
-                                          workEntry?.totalIncome != null ? workEntry!.totalIncome.toString() : ''),
-                                    );
-                                  },
-                                );
-                              },
-                            )
-                          ],
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: widget.calendarDates.length,
+          gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+          ),
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: GestureDetector(
+                onTap: () {
+                  addDataWidget(context, index, _isSwitched);
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (index < 7)
+                      Text(
+                        AppConstants().week[index],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.blue,
                         ),
                       ),
-                    ],
-                  ),
+                    const SizedBox(height: 20),
+                    Container(
+                      height: 85,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.9),
+                            blurRadius: 10,
+                            offset: const Offset(5, 5),
+                          ),
+                          const BoxShadow(
+                            color: Colors.white,
+                            blurRadius: 10,
+                            offset: Offset(-5, -5),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            DateFormat('d').format(widget.calendarDates[index]),
+                            style: Theme.of(context).textTheme.displayMedium,
+                          ),
+                          BlocBuilder<CalendarBloc, CalendarState>(
+                            bloc: calendarBloc,
+                            builder: (context, state) {
+                              return state.when(
+                                initial: () => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                loading: () => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                error: (message) => Center(
+                                  child: Text(message),
+                                ),
+                                loaded: (workEntries) {
+                                  final workEntry = workEntries[
+                                          widget.calendarDates[index]] ??
+                                      null;
+
+                                  return Center(
+                                    child: Text(
+                                      style: Theme.of(context).textTheme.displaySmall,
+                                      workEntry?.totalIncome != null
+                                        ? workEntry!.totalIncome.toString()
+                                        : ''),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              );
-            }),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -209,7 +239,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                       calendarBloc.add(
                         CalendarEvent.addWorkEntry(
                           WorkEntry(
-                            id: DateTime.now().millisecondsSinceEpoch, 
+                            id: DateTime.now().millisecondsSinceEpoch,
                             date: widget.calendarDates[index],
                             hoursWorked: 8.0,
                             hourRate: 15.0,

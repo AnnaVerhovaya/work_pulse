@@ -14,8 +14,6 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  var color = const Color(0xFF0033cc);
-
   @override
   void initState() {
     super.initState();
@@ -23,6 +21,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
     return ChangeNotifierProvider(
       create: (context) => CalendarProvider(),
       child: Scaffold(
@@ -32,7 +31,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
               DateTime.now(),
             ),
             style: TextStyle(
-                color: color, fontSize: 35, fontWeight: FontWeight.w400),
+                color: color,
+                fontSize: 35,
+                fontWeight: FontWeight.w400),
           ),
           backgroundColor: Colors.white,
         ),
