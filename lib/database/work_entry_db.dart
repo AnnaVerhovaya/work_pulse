@@ -28,7 +28,7 @@ class WorEntryDataBase implements WorkEntryDBRepository {
         onCreate: (db, version) async {
           await db.execute(
             '''CREATE TABLE IF NOT EXISTS $tableName (
-                 
+                  id INTEGER,
                   date INTEGER,  
                   hoursWorked REAL,
                   hourRate REAL,
@@ -63,16 +63,19 @@ class WorEntryDataBase implements WorkEntryDBRepository {
 
   @override
   Future<void> clearTable() async {
-    await (await database).rawQuery('DELETE FROM $tableName;');
+    Database db = await database;
+    await db.rawQuery('DELETE FROM $tableName;');
   }
 
- @override
-Future<void> insertWorkEntry(WorkEntry workEntry) async {
-  Database db = await database;
-  try {
-    await db.rawInsert(
-      '''
+  @override
+  Future<void> insertWorkEntry(WorkEntry workEntry) async {
+    Database db = await database;
+    try {
+      log('Inserting work entry: ${workEntry.toString()}');
+      await db.rawInsert(
+        '''
       INSERT INTO $tableName (
+        id,
         date,
         hoursWorked,
         hourRate,
@@ -80,23 +83,23 @@ Future<void> insertWorkEntry(WorkEntry workEntry) async {
         isWorkDay 
       )
       VALUES(
-        ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?
       );
-    ''',
-      [
-        workEntry.date.millisecondsSinceEpoch,
-        workEntry.hoursWorked,
-        workEntry.hourRate,
-        workEntry.totalIncome,
-        workEntry.isWorkingDay ? 1 : 0,
-      ],
-    );
-    log('Inserted into: $tableName, date: ${workEntry.date}');
-  } catch (e) {
-    log('Error inserting into $tableName: ${e.toString()}');
+      ''',
+        [
+          workEntry.id,
+          workEntry.date.millisecondsSinceEpoch,
+          workEntry.hoursWorked,
+          workEntry.hourRate,
+          workEntry.totalIncome,
+          workEntry.isWorkingDay ? 1 : 0,
+        ],
+      );
+      log('Inserted into: $tableName, date: ${workEntry.date}');
+    } catch (e) {
+      log('Error inserting into $tableName: ${e.toString()}');
+    }
   }
-}
-
 
   @override
   Future<void> deleteWorkEntry(int id) async {
@@ -105,14 +108,22 @@ Future<void> insertWorkEntry(WorkEntry workEntry) async {
     log('Deleted entry from: $tableName, id: $id');
   }
 
+  @override
   Future<WorkEntry?> getWorkEntryByDate(DateTime date) async {
+    printDatabase();
+    // Убедитесь, что база данных инициализирована
+
     final startDate = DateTime(date.year, date.month, date.day);
     final endDate = DateTime(date.year, date.month, date.day + 1);
-
-    final List<Map<String, dynamic>> results = await (await database).rawQuery(
-      '''
+    Database db = await database;
+    if (db == null) {
+      await _initDatabase(); 
+    }
+    try {
+      final List<Map<String, dynamic>> results = await db!.rawQuery(
+        '''
       SELECT 
-                      
+        id,
         date,             
         hoursWorked,      
         hourRate,         
@@ -121,21 +132,24 @@ Future<void> insertWorkEntry(WorkEntry workEntry) async {
       FROM $tableName
       WHERE
         date >= ? AND date < ?;
-    ''',
-      [
-        startDate.millisecondsSinceEpoch,
-        endDate.millisecondsSinceEpoch,
-      ],
-    );
-
-    if (results.isNotEmpty) {
-      return WorkEntry.load(results[0]);
-    } else {
+      ''',
+        [
+          startDate.millisecondsSinceEpoch,
+          endDate.millisecondsSinceEpoch,
+        ],
+      );
+      if (results.isNotEmpty) {
+        print('Data to load: ${results[0]}');
+        return WorkEntry.load(results[0]);
+      } else {
+        return null; 
+      }
+    } catch (e) {
+      print('Error while fetching work entry: ${e.toString()}');
       return null;
     }
   }
 
-  @override
   @override
   Future<void> updateWorkEntry(WorkEntry workEntry) async {
     Database db = await database;

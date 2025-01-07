@@ -1,9 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter_application_workpulse/database/work_entry_db.dart';
-import 'package:flutter_application_workpulse/packages/src/model/models.dart';
 import 'package:flutter_application_workpulse/services/work_entry_service.dart';
+import 'package:flutter_application_workpulse/utils/constants.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../packages/src/model/models.dart';
+import '../bloc/bloc.dart';
 
 class CustomCalendar extends StatefulWidget {
   const CustomCalendar(
@@ -20,19 +25,21 @@ class CustomCalendar extends StatefulWidget {
   State<CustomCalendar> createState() => _CustomCalendarState();
 }
 
-List<String> day_of_the_week = [
-  'пн',
-  'вт',
-  'ср',
-  'чт',
-  'пт',
-  'сб',
-  'вс',
-];
 bool _isSwitched = false;
 final workEntryDB = WorkEntryService(WorEntryDataBase());
 
 class _CustomCalendarState extends State<CustomCalendar> {
+  late CalendarBloc calendarBloc;
+
+  @override
+  void initState() {
+    calendarBloc = CalendarBloc(WorkEntryService(WorEntryDataBase()));
+    for (var date in widget.calendarDates) {
+      calendarBloc.add(CalendarEvent.getWorkEntry(date));
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -63,7 +70,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                   },
                   child: Column(
                     children: [
-                      if (index < 7) Text(day_of_the_week[index]),
+                      if (index < 7) Text(AppConstants().week[index]),
                       Container(
                         height: 50,
                         decoration: BoxDecoration(
@@ -80,31 +87,28 @@ class _CustomCalendarState extends State<CustomCalendar> {
                                 widget.calendarDates[index],
                               ),
                             ),
-                            FutureBuilder<WorkEntry?>(
-                              future: getWorkEntry(widget.calendarDates[
-                                  index]), // Ваш метод получения записи
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<WorkEntry?> snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return CircularProgressIndicator(); // Показать индикатор загрузки
-                                } else if (snapshot.hasError) {
-                                  return Text(
-                                      'Ошибка: ${snapshot.error}'); // Обработка ошибок
-                                } else if (!snapshot.hasData) {
-                                  return Text(''); // Если данных нет
-                                } else {
-                                  // Если данные успешно получены
-                                  WorkEntry entry = snapshot.data!;
-                                  return Text(
-                                    entry.totalIncome.toString(),
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        color: entry.totalIncome == 0
-                                            ? Colors.black
-                                            : Colors.red),
-                                  );
-                                }
+                            BlocBuilder<CalendarBloc, CalendarState>(
+                              bloc: calendarBloc,
+                              builder: (context, state) {
+                                return state.when(
+                                  initial: () => const Center(
+                                      child: CircularProgressIndicator()),
+                                  loading: () => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                  error: (message) => Center(
+                                    child: Text(message),
+                                  ),
+                                  loaded: (workEntries) {
+                                    final workEntry = workEntries[
+                                        widget.calendarDates[index]] ?? null;
+
+                                    return Center(
+                                      child: Text(
+                                          workEntry?.totalIncome != null ? workEntry!.totalIncome.toString() : ''),
+                                    );
+                                  },
+                                );
                               },
                             )
                           ],
@@ -201,22 +205,29 @@ class _CustomCalendarState extends State<CustomCalendar> {
                 Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(
-                      onPressed: () async {
-                        // await workEntryDB.insertWorkEntry(WorkEntry(
-                        //   date: DateTime.now(),
-                        //   hoursWorked: 8.0,
-                        //   hourRate: 15.0,
-                        //   totalIncome: 120.0,
-                        //   isWorkingDay: _isSwitched,
-                        // ));
-                        // Navigator.pop(context);
-                      },
-                      child: const Text(
-                        "Сохранить",
-                        style: TextStyle(
-                          color: Color(0xFF0033cc),
+                    onPressed: () async {
+                      calendarBloc.add(
+                        CalendarEvent.addWorkEntry(
+                          WorkEntry(
+                            id: DateTime.now().millisecondsSinceEpoch, 
+                            date: widget.calendarDates[index],
+                            hoursWorked: 8.0,
+                            hourRate: 15.0,
+                            totalIncome: 120.0,
+                            isWorkingDay: _isSwitched,
+                          ),
                         ),
-                      )),
+                      );
+
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "Сохранить",
+                      style: TextStyle(
+                        color: Color(0xFF0033cc),
+                      ),
+                    ),
+                  ),
                 )
               ],
             ),
