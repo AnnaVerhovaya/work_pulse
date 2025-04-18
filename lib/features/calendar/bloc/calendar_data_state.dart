@@ -8,5 +8,5 @@ class CalendarState with _$CalendarState {
 
   const factory CalendarState.error(String message) = _Error;
 
-  const factory CalendarState.loaded(Map<DateTime, WorkEntry?> workEntries) = _Loaded;
+  const factory CalendarState.loaded(List <WorkEntry?> workEntries) = _Loaded;
 }

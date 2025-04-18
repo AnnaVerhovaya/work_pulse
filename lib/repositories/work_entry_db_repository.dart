@@ -6,9 +6,9 @@ abstract class WorkEntryDBRepository {
   Future<void> updateWorkEntry(WorkEntry workEntry);
   Future<void> deleteWorkEntry(int id);
   Future<WorkEntry?> getWorkEntryByDate(DateTime date);
-  Future<List<WorkEntry>> getWorkEntriesForMonth(DateTime month);
-  Future<double> getTotalIncomeForMonth(DateTime month);
-  Future<double> getTotalHoursForMonth(DateTime month);
+  Future<List<WorkEntry>> getWorkEntriesForMonth(int year, int month);
+  Future<double> getTotalIncomeForMonth(int year, int month);
+  Future<double> getTotalHoursForMonth(int year, int month);
   Future<void> clearTable();
   Future<void> printDatabase();
   Future<void> recreateTable();

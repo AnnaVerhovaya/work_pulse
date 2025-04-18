@@ -5,4 +5,3 @@ export 'bloc/bloc.dart';
 export 'logic/logic.dart';
 export 'widgets/widgets.dart';
 export 'calendar_screen.dart';
-export 'swiper_widget.dart';

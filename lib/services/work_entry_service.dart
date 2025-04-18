@@ -22,15 +22,15 @@ class WorkEntryService {
     await workEntryDB.deleteWorkEntry(id);
   }
 
-  Future<List<WorkEntry?>> getWorkEntriesForMonth(DateTime month) async {
-    return await workEntryDB.getWorkEntriesForMonth(month);
+  Future<List<WorkEntry>?> getWorkEntriesForMonth(int year, int month) async {
+    return await workEntryDB.getWorkEntriesForMonth(year, month);
   }
 
-  Future<double> getTotalIncomeForMonth(DateTime month) async {
-    return await workEntryDB.getTotalIncomeForMonth(month);
+  Future<double> getTotalIncomeForMonth(int year, int month) async {
+    return await workEntryDB.getTotalIncomeForMonth(year, month);
   }
-   Future<double> getTotalHoursForMonth(DateTime month) async {
-    return await workEntryDB.getTotalHoursForMonth(month);
+
+  Future<double> getTotalHoursForMonth(int year, int month) async {
+    return await workEntryDB.getTotalHoursForMonth(year, month);
   }
- 
 }

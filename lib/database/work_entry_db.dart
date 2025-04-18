@@ -111,8 +111,6 @@ class WorEntryDataBase implements WorkEntryDBRepository {
   @override
   Future<WorkEntry?> getWorkEntryByDate(DateTime date) async {
     printDatabase();
-    // Убедитесь, что база данных инициализирована
-
     final startDate = DateTime(date.year, date.month, date.day);
     final endDate = DateTime(date.year, date.month, date.day + 1);
     Database db = await database;
@@ -162,16 +160,17 @@ class WorEntryDataBase implements WorkEntryDBRepository {
         'totalIncome': workEntry.totalIncome,
       },
       where: 'date = ?',
-      whereArgs: [workEntry.date],
+      whereArgs: [workEntry.date.millisecondsSinceEpoch],
     );
     log('Updated entry in: $tableName, date: ${workEntry.date}');
   }
 
   @override
-  Future<List<WorkEntry>> getWorkEntriesForMonth(DateTime month) async {
-    final startDate = DateTime(month.year, month.month, 1);
-    final endDate = DateTime(month.year, month.month + 1, 1);
-
+  Future<List<WorkEntry>> getWorkEntriesForMonth(int year, int month) async {
+    final startDate = DateTime(year, month, 1);
+    final endDate = month < 12 
+      ? DateTime(year, month + 1, 1)
+      : DateTime(year + 1, 1, 1);
     final List<Map<String, dynamic>> results = await (await database).rawQuery(
       '''
         SELECT 
@@ -194,8 +193,8 @@ class WorEntryDataBase implements WorkEntryDBRepository {
   }
 
   @override
-  Future<double> getTotalIncomeForMonth(DateTime month) async {
-    final entries = await getWorkEntriesForMonth(month);
+  Future<double> getTotalIncomeForMonth(int year, int month) async {
+    final entries = await getWorkEntriesForMonth(year,month);
     double totalIncome = 0.0;
 
     for (var entry in entries) {
@@ -206,8 +205,8 @@ class WorEntryDataBase implements WorkEntryDBRepository {
   }
 
   @override
-  Future<double> getTotalHoursForMonth(DateTime month) async {
-    final entries = await getWorkEntriesForMonth(month);
+  Future<double> getTotalHoursForMonth(int year, int month) async {
+    final entries = await getWorkEntriesForMonth(year,month);
     double totalHours = 0.0;
 
     for (var entry in entries) {
